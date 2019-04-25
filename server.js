@@ -22,6 +22,8 @@ var collections = ["platntedTank"];
 // Use mongojs to hook the database to the db variable
 var db = mongojs(databaseUrl, collections);
 
+// var db = require("./models");
+
 // This makes sure that any errors are logged if mongodb runs into an issue
 db.on("error", function(error) {
   console.log("Database Error:", error);
@@ -46,7 +48,7 @@ app.get("/", function(req, res) {
 app.get("/title", function(req, res) {
   // Query: In our database, go to the plantedTank collection, then "find" everything,
   // but this time, sort it by name (1 means ascending order)
-  db.plantedTank.find().sort({ name: 1 }, function(error, found) {
+  db.plantedTank.find().sort({ title: 1 }, function(error, found) {
     // Log any errors if the server encounters one
     if (error) {
       console.log(error);
@@ -62,7 +64,7 @@ app.get("/title", function(req, res) {
 app.get("/image", function(req, res) {
   // Query: In our database, go to the plantedTank collection, then "find" everything,
   // but this time, sort it by weight (-1 means descending order)
-  db.plantedTank.find().sort({ weight: -1 }, function(error, found) {
+  db.plantedTank.find().sort({ image: -1 }, function(error, found) {
     // Log any errors if the server encounters one
     if (error) {
       console.log(error);
@@ -118,6 +120,17 @@ axios.get("https://www.reddit.com/r/PlantedTank/").then(function(response) {
     });
   });
 });
+
+// // Create a new object in the DB
+// db.plantedTank.create(result)
+// .then(function(dbArticle) {
+//   // View the added result in the console
+//   console.log(dbArticle);
+// })
+// .catch(function(err) {
+//   // If an error occurred, log it
+//   console.log(err);
+// });
 
 
   // Log the results once you've looped through each of the elements found with cheerio
