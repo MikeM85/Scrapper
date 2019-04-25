@@ -98,21 +98,21 @@ axios.get("https://www.reddit.com/r/PlantedTank/").then(function(response) {
   // With cheerio, find each p-tag with the "title" class
   // (i: iterator. element: the current element)
   $("span.y8HYJ-y_lTUHkQIc1mdCq").each(function(i, element) {
-   
+    var a = $(this);
     // Save the text of the element in a "title" variable
-    var title = $(element).text();
+    var title = a.text();
 
     // In the currently selected element, look at its child elements (i.e., its a-tags),
     // then save the values for any "href" attributes that the child elements may have
-    var link = $(element).children().attr("href");
+    var link = a.children().attr("href");
 
-    // var image = $("div.m3aNC6yp8RrNM_-a0rrfa").children().attr("img");
+    var text = a.children().attr("p");
 
     // Save these results in an object that we'll push into the results array we defined earlier
     results.push({
       title: title,
-      link: link,
-      // image: image
+      text: text,
+      link: link
     });
   });
 
