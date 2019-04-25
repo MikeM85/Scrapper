@@ -59,7 +59,7 @@ app.get("/title", function(req, res) {
 });
 
 // 4. At the "/weight" path, display every entry in the plantedTank collection, sorted by weight
-app.get("/link", function(req, res) {
+app.get("/image", function(req, res) {
   // Query: In our database, go to the plantedTank collection, then "find" everything,
   // but this time, sort it by weight (-1 means descending order)
   db.plantedTank.find().sort({ weight: -1 }, function(error, found) {
@@ -81,7 +81,7 @@ app.listen(3000, function() {
 
 // First, tell the console what server.js is doing
 console.log("\n***********************************\n" +
-            "Grabbing every thread name and link\n" +
+            "Grabbing every thread name and image\n" +
             "from reddit's Planted Tank board:" +
             "\n***********************************\n");
 
@@ -99,22 +99,25 @@ axios.get("https://www.reddit.com/r/PlantedTank/").then(function(response) {
   // (i: iterator. element: the current element)
   $("span.y8HYJ-y_lTUHkQIc1mdCq").each(function(i, element) {
     var a = $(this);
-    // Save the text of the element in a "title" variable
+    // Save the link of the element in a "title" variable
     var title = a.text();
 
     // In the currently selected element, look at its child elements (i.e., its a-tags),
     // then save the values for any "href" attributes that the child elements may have
     var link = a.children().attr("href");
 
-    var text = a.children().attr("p");
+    $("img._2_tDEnGMLxpM6uOa2kaDB3.media-element").each(function(i, element){
+      var a = $(this);
+      var image = a.attr("src");
 
     // Save these results in an object that we'll push into the results array we defined earlier
     results.push({
       title: title,
-      text: text,
-      link: link
+      link: link,
+      image: image
     });
   });
+});
 
 
   // Log the results once you've looped through each of the elements found with cheerio
