@@ -1,63 +1,72 @@
-// We'll be rewriting the table's data frequently, so let's make our code more DRY
-// by writing a function that takes in 'plantedTanks' (JSON) and creates a table body
-function displayResults(plantedTanks) {
-  // First, empty the table
-  $("tbody").empty();
-
-  // Then, for each entry of that json...
-  plantedTanks.forEach(function(plantedTank) {
-    // Append each of the plantedTank's properties to the table
-    var tr = $("<tr>").append(
-      $("<td>").text(plantedTank.title),
-      $("<td>").text(plantedTank.link),
-      $("<td>").text(plantedTank.image)
-      // $("<td>").text(plantedTank.title),
-      // $("<td>").text(plantedTank.whatIWouldReallyCallIt)
-    );
-
-    $("tbody").append(tr);
-  });
-}
-
-// Bonus function to change "active" header
-function setActive(selector) {
-  // remove and apply 'active' class to distinguish which column we sorted by
-  $("th").removeClass("active");
-  $(selector).addClass("active");
-}
-
-// 1: On Load
-// ==========
-
-// First thing: ask the back end for json with all plantedTanks
-$.getJSON("/all", function(data) {
-  // Call our function to generate a table body
-  displayResults(data);
+// Grab the articles as a json
+$.getJSON("/articles", function(data) {
+  // For each one
+  for (var i = 0; i < data.length; i++) {
+    // Display the apropos information on the page
+    $("#articles").append("<p data-id='" + data[i]._id + "'>" + data[i].title + "<br />" + data[i].link + "</p>");
+  }
 });
 
-// 2: Button Interactions
-// ======================
 
-// When user clicks the title sort button, display table sorted by title
-$("#title-sort").on("click", function() {
-  // Set new column as currently-sorted (active)
-  setActive("#plantedTank-title");
+// Whenever someone clicks a p tag
+$(document).on("click", "p", function() {
+  // Empty the notes from the note section
+  $("#notes").empty();
+  // Save the id from the p tag
+  var thisId = $(this).attr("data-id");
 
-  // Do an api call to the back end for json with all plantedTanks sorted by title
-  $.getJSON("/title", function(data) {
-    // Call our function to generate a table body
-    displayResults(data);
-  });
+  // Now make an ajax call for the Article
+  $.ajax({
+    method: "GET",
+    url: "/articles/" + thisId
+  })
+    // With that done, add the note information to the page
+    .then(function(data) {
+      console.log(data);
+      // The title of the article
+      $("#notes").append("<h2>" + data.title + "</h2>");
+      // An input to enter a new title
+      $("#notes").append("<input id='titleinput' name='title' >");
+      // A textarea to add a new note body
+      $("#notes").append("<textarea id='bodyinput' name='body'></textarea>");
+      // A button to submit a new note, with the id of the article saved to it
+      $("#notes").append("<button data-id='" + data._id + "' id='savenote'>Save Note</button>");
+
+      // If there's a note in the article
+      if (data.note) {
+        // Place the title of the note in the title input
+        $("#titleinput").val(data.note.title);
+        // Place the body of the note in the body textarea
+        $("#bodyinput").val(data.note.body);
+      }
+    });
 });
 
-// When user clicks the link sort button, display the table sorted by link
-$("#link-sort").on("click", function() {
-  // Set new column as currently-sorted (active)
-  setActive("#plantedTank-link");
+// When you click the savenote button
+$(document).on("click", "#savenote", function() {
+  // Grab the id associated with the article from the submit button
+  var thisId = $(this).attr("data-id");
 
-  // Do an api call to the back end for json with all plantedTanks sorted by link
-  $.getJSON("/link", function(data) {
-    // Call our function to generate a table body
-    displayResults(data);
-  });
+  // Run a POST request to change the note, using what's entered in the inputs
+  $.ajax({
+    method: "POST",
+    url: "/articles/" + thisId,
+    data: {
+      // Value taken from title input
+      title: $("#titleinput").val(),
+      // Value taken from note textarea
+      body: $("#bodyinput").val()
+    }
+  })
+    // With that done
+    .then(function(data) {
+      // Log the response
+      console.log(data);
+      // Empty the notes section
+      $("#notes").empty();
+    });
+
+  // Also, remove the values entered in the input and textarea for note entry
+  $("#titleinput").val("");
+  $("#bodyinput").val("");
 });
