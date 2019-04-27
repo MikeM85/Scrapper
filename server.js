@@ -1,7 +1,7 @@
 var express = require("express");
 var logger = require("morgan");
 var mongoose = require("mongoose");
-
+// var Article = require ("./models");
 // Our scraping tools
 // Axios is a promised-based http library, similar to jQuery's Ajax method
 // It works on the client and on the server
@@ -27,7 +27,7 @@ app.use(express.json());
 app.use(express.static("public"));
 
 // Connect to the Mongo DB
-mongoose.connect("mongodb://localhost/tester3", { useNewUrlParser: true });
+mongoose.connect("mongodb://localhost/tester", { useNewUrlParser: true });
 
 // Routes
 
@@ -41,43 +41,43 @@ app.get("/scrape", function(req, res) {
   var $ = cheerio.load(response.data);
 
   // An empty array to save the data that we'll scrape
-  var result = [];
+  var result = {};
 
   // With cheerio, find each p-tag with the "title" class
   // (i: iterator. element: the current element)
   $("span.y8HYJ-y_lTUHkQIc1mdCq").each(function(i, element) {
     var a = $(this);
     // Save the link of the element in a "title" variable
-    var title = a.text();
+    result.title = a.text();
 
     // In the currently selected element, look at its child elements (i.e., its a-tags),
     // then save the values for any "href" attributes that the child elements may have
-    var link = a.children().attr("href");
+    result.link = a.children().attr("href");
 
     $("img._2_tDEnGMLxpM6uOa2kaDB3.media-element").each(function(i, element){
       var a = $(this);
-      var image = a.attr("src");
+      result.image = a.attr("src");
 
     // Save these results in an object that we'll push into the results array we defined earlier
-    result.push=({
-      title: title,
-      link: link,
-      image: image
-    });
-
-    // db.Article.create(result)
-    //     .then(function(dbArticle) {
-    //       // View the added result in the console
-    //       console.log(dbArticle);
-    //     })
-    //     .catch(function(err) {
-    //       // If an error occurred, log it
-    //       console.log(err);
-    //     });
+    // result.push=({
+    //   title: title,
+    //   link: link,
+    //   image: image
+    // });
+    console.log(result);
+    db.Article.create(result)
+        .then(function(dbArticle) {
+          // View the added result in the console
+          console.log(dbArticle);
+        })
+        .catch(function(err) {
+          // If an error occurred, log it
+          console.log(err);
+        });
   });
 });
 // Log the results once you've looped through each of the elements found with cheerio
-console.log(result);
+// console.log(Article);
 // });
 
 });
