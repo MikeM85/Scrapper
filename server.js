@@ -27,7 +27,7 @@ app.use(express.json());
 app.use(express.static("public"));
 
 // Connect to the Mongo DB
-mongoose.connect("mongodb://localhost/tester", { useNewUrlParser: true });
+mongoose.connect("mongodb://localhost/tester3", { useNewUrlParser: true });
 
 // Routes
 
@@ -35,33 +35,52 @@ mongoose.connect("mongodb://localhost/tester", { useNewUrlParser: true });
 app.get("/scrape", function(req, res) {
   // First, we grab the body of the html with axios
   axios.get("https://www.reddit.com/r/PlantedTank/").then(function(response) {
-    // Then, we load that into cheerio and save it to $ for a shorthand selector
-    var $ = cheerio.load(response.data);
 
-    // Now, we grab every h2 within an article tag, and do the following:
-    $("span.y8HYJ-y_lTUHkQIc1mdCq").each(function(i, element) {
-      // Save an empty result object
-      var result = {};
+  // Load the HTML into cheerio and save it to a variable
+  // '$' becomes a shorthand for cheerio's selector commands, much like jQuery's '$'
+  var $ = cheerio.load(response.data);
 
-      // Add the text and href of every link, and save them as properties of the result object
-      result.title = $(this).text();
-      result.link = $(this).children().attr("href");
+  // An empty array to save the data that we'll scrape
+  var result = [];
 
-      // Create a new Article using the `result` object built from scraping
-      db.Article.create(result)
-        .then(function(dbArticle) {
-          // View the added result in the console
-          console.log(dbArticle);
-        })
-        .catch(function(err) {
-          // If an error occurred, log it
-          console.log(err);
-        });
+  // With cheerio, find each p-tag with the "title" class
+  // (i: iterator. element: the current element)
+  $("span.y8HYJ-y_lTUHkQIc1mdCq").each(function(i, element) {
+    var a = $(this);
+    // Save the link of the element in a "title" variable
+    var title = a.text();
+
+    // In the currently selected element, look at its child elements (i.e., its a-tags),
+    // then save the values for any "href" attributes that the child elements may have
+    var link = a.children().attr("href");
+
+    $("img._2_tDEnGMLxpM6uOa2kaDB3.media-element").each(function(i, element){
+      var a = $(this);
+      var image = a.attr("src");
+
+    // Save these results in an object that we'll push into the results array we defined earlier
+    result.push=({
+      title: title,
+      link: link,
+      image: image
     });
 
-    // Send a message to the client
-    res.send("Scrape Complete");
+    // db.Article.create(result)
+    //     .then(function(dbArticle) {
+    //       // View the added result in the console
+    //       console.log(dbArticle);
+    //     })
+    //     .catch(function(err) {
+    //       // If an error occurred, log it
+    //       console.log(err);
+    //     });
   });
+});
+// Log the results once you've looped through each of the elements found with cheerio
+console.log(result);
+// });
+
+});
 });
 
 // Route for getting all Articles from the db
