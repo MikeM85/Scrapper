@@ -76,9 +76,8 @@ app.get("/scrape", function(req, res) {
         });
   });
 });
-// Log the results once you've looped through each of the elements found with cheerio
-// console.log(Article);
-// });
+ // Send a message to the client
+ res.send("Scrape Complete");
 
 });
 });
