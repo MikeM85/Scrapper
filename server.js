@@ -64,17 +64,17 @@ app.get("/scrape", function(req, res) {
     //   link: link,
     //   image: image
     // });
-    console.log(result);
-    db.Article.create(result)
-        .then(function(dbArticle) {
-          // View the added result in the console
-          // console.log(dbArticle);
-        })
-        .catch(function(err) {
-          // If an error occurred, log it
-          console.log(err);
-        });
   });
+  console.log(result);
+  db.Article.create(result)
+      .then(function(dbArticle) {
+        // View the added result in the console
+        // console.log(dbArticle);
+      })
+      .catch(function(err) {
+        // If an error occurred, log it
+        console.log(err);
+      });
 });
  // Send a message to the client
  res.send("Scrape Complete");
